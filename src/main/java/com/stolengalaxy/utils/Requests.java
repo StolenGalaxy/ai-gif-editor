@@ -11,7 +11,6 @@ import okhttp3.*;
 
 public class Requests {
     private static OkHttpClient client = new OkHttpClient();
-    private static final Gson gson = new Gson();
 
     public static JsonObject post(String url, RequestBody requestBody){
         Request request = new Request.Builder()
@@ -39,9 +38,9 @@ public class Requests {
                 .build();
     }
 
-    public static JsonObject postFile (String filePath){
+    public static JsonObject postFile (String url, String filePath){
         RequestBody requestBody = fileRequestBody(filePath);
-        return post("https://tmpfiles.org/api/v1/upload", requestBody);
+        return post(url, requestBody);
     }
 
 
