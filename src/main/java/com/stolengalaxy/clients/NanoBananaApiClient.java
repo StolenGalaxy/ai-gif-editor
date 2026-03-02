@@ -31,10 +31,19 @@ public class NanoBananaApiClient {
         return authenticateRequest(requestBody);
     }
 
-    public static String checkGenerationStatus(String taskID){
+    public static String checkGeneration(String taskID){
         Request request = Requests.generateRequestFromJson(endpoint + String.format("record-info?taskId=%s", taskID), "", false);
         request = authenticateRequest(request);
         JsonObject response = Requests.sendRequest(request);
-        return response.get("msg").getAsString();
+
+        System.out.println(response);
+        int successFlag = response.get("data").getAsJsonObject().get("successFlag").getAsInt();
+
+        return switch(successFlag){
+            case 1 -> response.get("data").getAsJsonObject().get("response").getAsJsonObject().get("resultImageUrl").getAsString();
+            case 2 -> "TASK_CREATION_FAILED";
+            case 3 -> "GENERATION_FAILED";
+            default -> "GENERATING";
+        };
     }
 }
