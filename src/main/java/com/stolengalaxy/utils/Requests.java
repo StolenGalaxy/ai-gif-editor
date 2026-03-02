@@ -11,10 +11,10 @@ import okhttp3.*;
 public class Requests {
     private static OkHttpClient client = new OkHttpClient();
 
-    public static JsonObject postRequest(Request request){
+    public static JsonObject sendRequest(Request request){
         try(Response response = client.newCall(request).execute()){
             if(response.isSuccessful()){
-                JsonElement responseElement= JsonParser.parseString(response.body().string());
+                JsonElement responseElement = JsonParser.parseString(response.body().string());
                 return responseElement.getAsJsonObject();
             } else{
                 throw new RuntimeException("Http request failed");
@@ -37,14 +37,20 @@ public class Requests {
                 .build();
     }
 
-    public static Request generatePostRequestFromJson(String url, String json){
+
+    public static Request generateRequestFromJson(String url, String json, boolean postRequest){
         MediaType JSON = MediaType.parse("application/json");
 
         RequestBody requestBody = RequestBody.create(json, JSON);
-        return new Request.Builder()
+        Request.Builder builder = new Request.Builder()
                 .url(url)
-                .post(requestBody)
-                .build();
+                .post(requestBody);
+        if (postRequest){
+            builder.post(requestBody);
+        } else{
+            builder.get();
+        }
+        return builder.build();
     }
 
     public static Request addHeader(Request request, String name, String value){
@@ -53,10 +59,9 @@ public class Requests {
                 .build();
     }
 
-
     public static JsonObject postFile (String url, String filePath){
         Request request = fileUploadRequest(url, filePath);
-        return postRequest(request);
+        return sendRequest(request);
     }
 
 }
