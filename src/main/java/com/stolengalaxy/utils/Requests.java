@@ -63,5 +63,4 @@ public class Requests {
         Request request = fileUploadRequest(url, filePath);
         return sendRequest(request);
     }
-
 }
