@@ -4,6 +4,8 @@ build/
 !**/src/main/**/build/
 .kotlin
 
+.env
+
 ### IntelliJ IDEA ###
 .idea/
 *.iws
