@@ -8,6 +8,6 @@ public class AppConfig {
 
     static {
         Dotenv dotenv = Dotenv.load();
-        NanoBananaAPIKey = dotenv.get("NanoBananaAPIKey");
+        NanoBananaAPIKey = dotenv.get("NANO_BANANA_API_KEY");
     }
 }
