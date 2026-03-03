@@ -2,6 +2,8 @@ package com.stolengalaxy.utils;
 
 import org.apache.commons.io.FileUtils;
 
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -9,7 +11,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-public class FileDownloader {
+public class FileHandling {
     public static void downloadFile(String fileURL, String fileDestination){
         File file = new File(fileDestination);
 
@@ -29,5 +31,20 @@ public class FileDownloader {
             throw new RuntimeException("There was an issue while downloading the file from the URL", e);
         }
 
+    }
+
+    public static File selectLocalFile(){
+        JFileChooser chooser = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("GIF only", "gif");
+        chooser.setFileFilter(filter);
+
+        int returnVal = chooser.showOpenDialog(null);
+
+        if (returnVal == JFileChooser.APPROVE_OPTION){
+            System.out.printf("File '%s' selected%n", chooser.getSelectedFile().getName());
+            return chooser.getSelectedFile();
+        } else{
+            throw new RuntimeException("No file selected");
+        }
     }
 }
