@@ -31,7 +31,7 @@ public class NanoBananaApiClient {
         return authenticateRequest(requestBody);
     }
 
-    public static String imageToImage(String imageURL, String promptText){
+    private static String imageToImageTask(String imageURL, String promptText){
         Request request = imageToImageRequest(imageURL, promptText);
         JsonObject response = Requests.sendRequest(request);
 
@@ -53,7 +53,7 @@ public class NanoBananaApiClient {
         };
     }
 
-    public static String checkUntilOutcome(String taskID, int delay){
+    private static String checkUntilOutcome(String taskID, int delay){
         String status = checkGeneration(taskID);
         while(status.contains("GENERATING")){
             status = checkGeneration(taskID);
@@ -68,5 +68,10 @@ public class NanoBananaApiClient {
         } else{
             throw new RuntimeException(status);
         }
+    }
+
+    public static String editImage(String imageURL, String prompt){
+        String taskID = imageToImageTask(imageURL, prompt);
+        return checkUntilOutcome(taskID, 3);
     }
 }

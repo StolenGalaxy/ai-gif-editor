@@ -39,7 +39,6 @@ public class GifHandling {
     }
 
     public static void mergeIntoGif(ArrayList<String> framePaths, String gifDestinationPath){
-
         try{
             StreamingGifWriter writer = new StreamingGifWriter(Duration.ofMillis(20), false, false);
             GifStream gif = writer.prepareStream(gifDestinationPath, BufferedImage.TYPE_INT_ARGB);
@@ -58,8 +57,5 @@ public class GifHandling {
         } catch (Exception e){
             throw new RuntimeException(e);
         }
-
-
-
     }
 }
