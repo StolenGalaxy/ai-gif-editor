@@ -47,4 +47,9 @@ public class FileHandling {
             throw new RuntimeException("No file selected");
         }
     }
+
+    public static void deleteFileByPath(String filePath){
+        File file = new File(filePath);
+        file.delete();
+    }
 }

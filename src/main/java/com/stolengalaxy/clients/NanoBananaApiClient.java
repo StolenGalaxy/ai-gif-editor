@@ -31,9 +31,9 @@ public class NanoBananaApiClient {
         return authenticateRequest(requestBody);
     }
 
-    public static String imageToImage(String imageURL, String promptText){
+    private static String imageToImageTask(String imageURL, String promptText){
         Request request = imageToImageRequest(imageURL, promptText);
-        JsonObject response = Requests.sendRequest(request);
+        JsonObject response = Requests.sendRequestWithRetries(request);
 
         return response.get("data").getAsJsonObject().get("taskId").getAsString();
     }
@@ -41,7 +41,7 @@ public class NanoBananaApiClient {
     private static String checkGeneration(String taskID){
         Request request = Requests.generateRequestFromJson(endpoint + String.format("record-info?taskId=%s", taskID), "", false);
         request = authenticateRequest(request);
-        JsonObject response = Requests.sendRequest(request);
+        JsonObject response = Requests.sendRequestWithRetries(request);
 
         int successFlag = response.get("data").getAsJsonObject().get("successFlag").getAsInt();
 
@@ -53,20 +53,35 @@ public class NanoBananaApiClient {
         };
     }
 
-    public static String checkUntilOutcome(String taskID, int delay){
-        String status = checkGeneration(taskID);
-        while(status.contains("GENERATING")){
-            status = checkGeneration(taskID);
-            try{
-                Thread.sleep(delay * 1000);
-            } catch (InterruptedException e){
-                throw new RuntimeException("There was an error while paused.", e);
+    private static String tryUntilOutcome(String taskID, int delay, int generationRetryMax){
+        int failCount = 0;
+
+        while(failCount <= generationRetryMax){
+            String status = checkGeneration(taskID);
+            while(status.contains("GENERATING")){
+                status = checkGeneration(taskID);
+                try{
+                    Thread.sleep(delay * 1000);
+                } catch (InterruptedException e){
+                    throw new RuntimeException("There was an error while paused.", e);
+                }
+            }
+            if(status.contains("https://")){
+                return status;
+            } else{
+                System.err.println(status);
+                failCount++;
+
+                if(failCount <= generationRetryMax){
+                    System.out.println("Retrying generation.");
+                }
             }
         }
-        if(status.contains("https://")){
-            return status;
-        } else{
-            throw new RuntimeException(status);
-        }
+        throw new RuntimeException("Reached generation retry limit for task " + taskID);
+    }
+
+    public static String editImage(String imageURL, String prompt, int generationRetryMax){
+        String taskID = imageToImageTask(imageURL, prompt);
+        return tryUntilOutcome(taskID, 3, generationRetryMax);
     }
 }

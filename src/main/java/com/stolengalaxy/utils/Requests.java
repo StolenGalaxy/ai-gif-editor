@@ -11,17 +11,47 @@ import okhttp3.*;
 public class Requests {
     private static OkHttpClient client = new OkHttpClient();
 
-    public static JsonObject sendRequest(Request request){
-        try(Response response = client.newCall(request).execute()){
+    private static JsonObject sendRequest(Request request){
+        try{
+            Response response = client.newCall(request).execute();
             if(response.isSuccessful()){
                 JsonElement responseElement = JsonParser.parseString(response.body().string());
                 return responseElement.getAsJsonObject();
             } else{
-                throw new RuntimeException("Http request failed");
+                System.err.println(response.body().string());
+                throw new RuntimeException("HTTP request was not successful.");
             }
         } catch (IOException e){
-            throw new RuntimeException("Http request failed", e);
+            throw new RuntimeException(e);
         }
+    }
+
+    public static JsonObject sendRequestWithRetries(Request request){
+        int attempts = 0;
+        boolean successful = false;
+
+        JsonObject response = new JsonObject();
+
+        while(attempts < 2 && !successful){
+            attempts++;
+            try{
+                response = sendRequest(request);
+                successful = true;
+            } catch (RuntimeException e){
+                System.err.println("Sending HTTP request failed.");
+                if(attempts >= 2){
+                    throw new RuntimeException("Reached request retry limit. Cancelling.", e);
+                }
+
+                try{
+                    Thread.sleep(5000);
+                } catch (InterruptedException interruptedError){
+                    throw new RuntimeException(interruptedError);
+                }
+
+            }
+        }
+        return response;
     }
 
     public static Request fileUploadRequest(String url, String filePath){
@@ -36,7 +66,6 @@ public class Requests {
                 .post(requestBody)
                 .build();
     }
-
 
     public static Request generateRequestFromJson(String url, String json, boolean postRequest){
         MediaType JSON = MediaType.parse("application/json");
@@ -61,6 +90,6 @@ public class Requests {
 
     public static JsonObject postFile (String url, String filePath){
         Request request = fileUploadRequest(url, filePath);
-        return sendRequest(request);
+        return sendRequestWithRetries(request);
     }
 }
