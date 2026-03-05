@@ -33,7 +33,7 @@ public class NanoBananaApiClient {
 
     private static String imageToImageTask(String imageURL, String promptText){
         Request request = imageToImageRequest(imageURL, promptText);
-        JsonObject response = Requests.sendRequest(request);
+        JsonObject response = Requests.sendRequestWithRetries(request);
 
         return response.get("data").getAsJsonObject().get("taskId").getAsString();
     }
@@ -41,7 +41,7 @@ public class NanoBananaApiClient {
     private static String checkGeneration(String taskID){
         Request request = Requests.generateRequestFromJson(endpoint + String.format("record-info?taskId=%s", taskID), "", false);
         request = authenticateRequest(request);
-        JsonObject response = Requests.sendRequest(request);
+        JsonObject response = Requests.sendRequestWithRetries(request);
 
         int successFlag = response.get("data").getAsJsonObject().get("successFlag").getAsInt();
 
