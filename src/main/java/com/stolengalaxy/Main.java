@@ -19,15 +19,15 @@ public class Main {
         File selectedFile = FileHandling.selectLocalFile();
 
         String gifPath = selectedFile.getAbsolutePath();
-        ArrayList<String> framePaths = GifHandling.splitGif(selectedFile);
+        ArrayList<String> framesData = GifHandling.splitGif(selectedFile);
 
         int gifWidth;
         int gifHeight;
 
         double pricePerFrame = 0.04;
-        
+
         try{
-            File firstFrameFile = new File(framePaths.getFirst());
+            File firstFrameFile = new File(framesData.getFirst());
             BufferedImage firstFrame = ImageIO.read(firstFrameFile);
 
             gifWidth = firstFrame.getWidth();
@@ -39,24 +39,24 @@ public class Main {
 
 
         int firstFrameToEdit = -1;
-        int lastFrameToEdit = framePaths.size();
+        int lastFrameToEdit = framesData.size();
         System.out.println("To only edit certain frames, enter Y, otherwise press enter:");
         if (scanner.nextLine().equalsIgnoreCase("Y")){
 
-            while (firstFrameToEdit < 0 || firstFrameToEdit >= framePaths.size()){
-                System.out.println("Enter index of the first frame to be edited (0-" + (framePaths.size() - 1) + "):");
+            while (firstFrameToEdit < 0 || firstFrameToEdit >= framesData.size()){
+                System.out.println("Enter index of the first frame to be edited (0-" + (framesData.size() - 1) + "):");
                 firstFrameToEdit = scanner.nextInt();
                 scanner.nextLine();
             }
 
-            while(lastFrameToEdit >= framePaths.size() || lastFrameToEdit < firstFrameToEdit){
-                System.out.println("Enter index of the last frame to be edited (" + (firstFrameToEdit + 1) + "-" + (framePaths.size() - 1) + "):");
+            while(lastFrameToEdit >= framesData.size() || lastFrameToEdit < firstFrameToEdit){
+                System.out.println("Enter index of the last frame to be edited (" + (firstFrameToEdit + 1) + "-" + (framesData.size() - 1) + "):");
                 lastFrameToEdit = scanner.nextInt();
                 scanner.nextLine();
             }
         } else{
             firstFrameToEdit = 0;
-            lastFrameToEdit = framePaths.size() - 1;
+            lastFrameToEdit = framesData.size() - 1;
         }
 
         double estimatedPriceDollars = (lastFrameToEdit - firstFrameToEdit + 1) * pricePerFrame;
@@ -69,7 +69,7 @@ public class Main {
         if (!confirmation.equalsIgnoreCase("Y")) {
             System.err.println("Deleting frames and exiting.");
             System.err.println(confirmation);
-            for(String framePath : framePaths){
+            for(String framePath : framesData){
                 FileHandling.deleteFileByPath(framePath);
             }
 
@@ -77,8 +77,8 @@ public class Main {
             System.out.println("Enter prompt:");
             String prompt = scanner.nextLine() + " Do NOT change the aspect ratio at all!";
 
-            for(int i=0; i<framePaths.size(); i++){
-                String framePath = framePaths.get(i);
+            for(int i=0; i<framesData.size(); i++){
+                String framePath = framesData.get(i);
                 if(i <= lastFrameToEdit && i >= firstFrameToEdit){
                     System.out.println("Starting " + framePath);
 
@@ -98,7 +98,7 @@ public class Main {
             }
 
             FileHandling.deleteFileByPath(gifPath);
-            GifHandling.mergeIntoGif(framePaths, gifPath);
+            GifHandling.mergeIntoGif(framesData, gifPath);
             System.out.println("Completed " + gifPath);
         }
     }
