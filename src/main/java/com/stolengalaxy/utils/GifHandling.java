@@ -23,8 +23,6 @@ public class GifHandling {
             int frameCount = gif.getFrameCount();
             for (int i = 0; i < frameCount; i++) {
                 ImmutableImage frame = gif.getFrame(i);
-                System.out.println(gif.getDelay(i));
-
                 String imagePath = "frame_" + String.format("%03d", i) + ".png";
                 File outputFile = new File(imagePath);
 
@@ -40,7 +38,7 @@ public class GifHandling {
 
     public static void mergeIntoGif(ArrayList<String> framePaths, String gifDestinationPath){
         try{
-            StreamingGifWriter writer = new StreamingGifWriter(Duration.ofMillis(20), false, false);
+            StreamingGifWriter writer = new StreamingGifWriter(Duration.ofMillis(20), true, false);
             GifStream gif = writer.prepareStream(gifDestinationPath, BufferedImage.TYPE_INT_ARGB);
 
             for (String framePath : framePaths) {
@@ -57,5 +55,21 @@ public class GifHandling {
         } catch (Exception e){
             throw new RuntimeException(e);
         }
+    }
+
+    public static void resizeImage(File imageFile, int targetWidth, int targetHeight) {
+        String imagePath = imageFile.getAbsolutePath();
+
+        try{
+            ImmutableImage image = ImmutableImage.fromAwt(ImageIO.read(imageFile));
+            image = image.scaleTo(targetWidth, targetHeight);
+
+            BufferedImage bufferedImage = image.awt();
+            imageFile.delete();
+            ImageIO.write(bufferedImage, "PNG", new File(imagePath));
+        } catch (IOException e){
+            throw new RuntimeException("Failed to resize image.", e);
+        }
+
     }
 }
