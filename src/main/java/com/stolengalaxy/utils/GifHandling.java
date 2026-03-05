@@ -16,24 +16,26 @@ import java.util.ArrayList;
 
 public class GifHandling {
     public static ArrayList<String> splitGif(File gifFile){
-        ArrayList<String> resultantFramesPaths = new ArrayList<>();
+        ArrayList<String> resultantFramesData = new ArrayList<>();
         try {
             AnimatedGif gif = AnimatedGifReader.read(ImageSource.of(gifFile));
-
             int frameCount = gif.getFrameCount();
             for (int i = 0; i < frameCount; i++) {
                 ImmutableImage frame = gif.getFrame(i);
-                String imagePath = "frame_" + String.format("%03d", i) + ".png";
+
+                String frameDelayMS = String.valueOf(gif.getDelay(i).toMillis());
+
+                String imagePath = frameDelayMS + "_frame_" + String.format("%03d", i) + ".png";
                 File outputFile = new File(imagePath);
 
                 ImageIO.write(frame.awt(), "png", outputFile);
-                resultantFramesPaths.add(imagePath);
+                resultantFramesData.add(imagePath);
             }
 
         } catch (IOException e) {
             throw new RuntimeException("Failed to split gif", e);
         }
-        return resultantFramesPaths;
+        return resultantFramesData;
     }
 
     public static void mergeIntoGif(ArrayList<String> framePaths, String gifDestinationPath){
@@ -45,7 +47,9 @@ public class GifHandling {
                 File imageFile = new File(framePath);
 
                 BufferedImage image = ImageIO.read(imageFile);
-                gif.writeFrame(ImmutableImage.fromAwt(image));
+
+                long frameDelay = Long.parseLong(framePath.split("_")[0]);
+                gif.writeFrame(ImmutableImage.fromAwt(image), Duration.ofMillis(frameDelay));
 
                 imageFile.delete();
             }
