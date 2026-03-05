@@ -4,8 +4,6 @@ build/
 !**/src/main/**/build/
 .kotlin
 
-.env
-
 ### IntelliJ IDEA ###
 .idea/
 *.iws
@@ -13,3 +11,8 @@ build/
 *.ipr
 out/
 !**/src/main/**/out/
+
+.env
+*.png
+*.gif
+*.jpg
