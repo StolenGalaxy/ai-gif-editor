@@ -53,25 +53,35 @@ public class NanoBananaApiClient {
         };
     }
 
-    private static String checkUntilOutcome(String taskID, int delay){
-        String status = checkGeneration(taskID);
-        while(status.contains("GENERATING")){
-            status = checkGeneration(taskID);
-            try{
-                Thread.sleep(delay * 1000);
-            } catch (InterruptedException e){
-                throw new RuntimeException("There was an error while paused.", e);
+    private static String tryUntilOutcome(String taskID, int delay, int generationRetryMax){
+        int failCount = 0;
+
+        while(failCount <= generationRetryMax){
+            String status = checkGeneration(taskID);
+            while(status.contains("GENERATING")){
+                status = checkGeneration(taskID);
+                try{
+                    Thread.sleep(delay * 1000);
+                } catch (InterruptedException e){
+                    throw new RuntimeException("There was an error while paused.", e);
+                }
+            }
+            if(status.contains("https://")){
+                return status;
+            } else{
+                System.err.println(status);
+                failCount++;
+
+                if(failCount <= generationRetryMax){
+                    System.out.println("Retrying generation.");
+                }
             }
         }
-        if(status.contains("https://")){
-            return status;
-        } else{
-            throw new RuntimeException(status);
-        }
+        throw new RuntimeException("Reached generation retry limit for task " + taskID);
     }
 
-    public static String editImage(String imageURL, String prompt){
+    public static String editImage(String imageURL, String prompt, int generationRetryMax){
         String taskID = imageToImageTask(imageURL, prompt);
-        return checkUntilOutcome(taskID, 3);
+        return tryUntilOutcome(taskID, 3, generationRetryMax);
     }
 }
