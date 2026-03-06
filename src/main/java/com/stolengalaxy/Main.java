@@ -24,7 +24,8 @@ public class Main {
         int gifWidth;
         int gifHeight;
 
-        double pricePerFrame = 0.04;
+        double pricePerCredit = 0.00451;
+        int creditsPerFrame = 8;
 
         try{
             File firstFrameFile = new File(framesData.getFirst());
@@ -59,16 +60,17 @@ public class Main {
             lastFrameToEdit = framesData.size() - 1;
         }
 
-        double estimatedPriceDollars = (lastFrameToEdit - firstFrameToEdit + 1) * pricePerFrame;
-        double estimatedPrice = estimatedPriceDollars * 0.75;
+        int numberOfFramesToEdit = lastFrameToEdit - firstFrameToEdit + 1;
 
-        System.out.println((lastFrameToEdit - firstFrameToEdit + 1) + " frames will be edited.");
-        System.out.println("This will likely cost at least £" + estimatedPrice + "\nEnter Y to continue:");
-        String confirmation = scanner.nextLine();
+        double estimatedPrice = numberOfFramesToEdit * creditsPerFrame * pricePerCredit;
+        estimatedPrice = (double) Math.round(estimatedPrice * 100) / 100;
 
-        if (!confirmation.equalsIgnoreCase("Y")) {
+        System.out.println("You have " + NanoBananaApiClient.getRemainingCredits() + " credits remaining.");
+        System.out.println(numberOfFramesToEdit + " frames will be edited.");
+        System.out.println("This will cost at least " + numberOfFramesToEdit * creditsPerFrame + " credits (£" + estimatedPrice + ").\nEnter Y to continue:");
+
+        if (!scanner.nextLine().equalsIgnoreCase("Y")) {
             System.err.println("Deleting frames and exiting.");
-            System.err.println(confirmation);
             for(String framePath : framesData){
                 FileHandling.deleteFileByPath(framePath);
             }
