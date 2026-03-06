@@ -7,7 +7,7 @@ import okhttp3.Request;
 
 
 public class NanoBananaApiClient {
-    private static final String endpoint = "https://api.nanobananaapi.ai/api/v1/nanobanana/";
+    private static final String endpoint = "https://api.nanobananaapi.ai/api/v1/";
 
     private static Request authenticateRequest(Request request){
         return Requests.addHeader(request, "Authorization", AppConfig.NanoBananaAPIKey);
@@ -25,7 +25,7 @@ public class NanoBananaApiClient {
                 }
                 """, promptText, imageURL);
 
-        Request requestBody = Requests.generateRequestFromJson(endpoint + "generate", json, true);
+        Request requestBody = Requests.generateRequestFromJson(endpoint + "nanobanana/generate", json, true);
         requestBody = Requests.addHeader(requestBody, "Content-Type", "application/json");
 
         return authenticateRequest(requestBody);
@@ -39,7 +39,7 @@ public class NanoBananaApiClient {
     }
 
     private static String checkGeneration(String taskID){
-        Request request = Requests.generateRequestFromJson(endpoint + String.format("record-info?taskId=%s", taskID), "", false);
+        Request request = Requests.generateRequestFromJson(endpoint + String.format("nanobanana/record-info?taskId=%s", taskID), "", false);
         request = authenticateRequest(request);
         JsonObject response = Requests.sendRequestWithRetries(request);
 
@@ -83,5 +83,15 @@ public class NanoBananaApiClient {
     public static String editImage(String imageURL, String prompt, int generationRetryMax){
         String taskID = imageToImageTask(imageURL, prompt);
         return tryUntilOutcome(taskID, 3, generationRetryMax);
+    }
+
+    public static int getRemainingCredits(){
+        Request request = Requests.generateRequestFromJson(endpoint + "common/credit", "", false);
+        request = authenticateRequest(request);
+        JsonObject response = Requests.sendRequestWithRetries(request);
+
+        int remainingCredits = response.get("data").getAsInt();
+
+        return remainingCredits;
     }
 }
