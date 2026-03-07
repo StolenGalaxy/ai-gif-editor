@@ -1,7 +1,7 @@
 package com.stolengalaxy;
 
 import com.stolengalaxy.clients.NanoBananaApiClient;
-import com.stolengalaxy.clients.TmpFilesClient;
+import com.stolengalaxy.services.TaskControllerService;
 import com.stolengalaxy.util.FileHandling;
 import com.stolengalaxy.util.GifHandling;
 
@@ -79,26 +79,17 @@ public class Main {
             System.out.println("Enter prompt:");
             String prompt = scanner.nextLine() + " Do NOT change the aspect ratio at all!";
 
+            ArrayList<String> editableFrames = new ArrayList<>();
             for(int i=0; i<framesData.size(); i++){
                 String framePath = framesData.get(i);
                 if(i <= lastFrameToEdit && i >= firstFrameToEdit){
-                    System.out.println("Starting " + framePath);
-
-                    String imageURL = TmpFilesClient.uploadFile(framePath);
-
-                    FileHandling.deleteFileByPath(framePath);
-
-                    String newImageURL = NanoBananaApiClient.editImage(imageURL, prompt, 1);
-                    FileHandling.downloadFile(newImageURL, framePath);
-
-                    GifHandling.resizeImage(new File(framePath), gifWidth, gifHeight);
-
-                    System.out.println("Completed " + framePath);
+                    editableFrames.add(framePath);
                 } else{
                     System.out.println("Skipping " + framePath);
                 }
             }
 
+            TaskControllerService.generateAndDownload(editableFrames, prompt, 3, gifWidth, gifHeight);
             FileHandling.deleteFileByPath(gifPath);
             GifHandling.mergeIntoGif(framesData, gifPath);
             System.out.println("Completed " + gifPath);

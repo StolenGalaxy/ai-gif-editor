@@ -2,7 +2,7 @@ package com.stolengalaxy.clients;
 
 import com.google.gson.JsonObject;
 import com.stolengalaxy.config.AppConfig;
-import com.stolengalaxy.utils.Requests;
+import com.stolengalaxy.util.Requests;
 import okhttp3.Request;
 
 
@@ -31,14 +31,14 @@ public class NanoBananaApiClient {
         return authenticateRequest(requestBody);
     }
 
-    private static String imageToImageTask(String imageURL, String promptText){
+    public static String imageToImageTask(String imageURL, String promptText){
         Request request = imageToImageRequest(imageURL, promptText);
         JsonObject response = Requests.sendRequestWithRetries(request);
 
         return response.get("data").getAsJsonObject().get("taskId").getAsString();
     }
 
-    private static String checkGeneration(String taskID){
+    public static String checkGeneration(String taskID){
         Request request = Requests.generateRequestFromJson(endpoint + String.format("nanobanana/record-info?taskId=%s", taskID), "", false);
         request = authenticateRequest(request);
         JsonObject response = Requests.sendRequestWithRetries(request);
@@ -51,38 +51,6 @@ public class NanoBananaApiClient {
             case 3 -> "Error: Image generation failed";
             default -> "GENERATING";
         };
-    }
-
-    private static String tryUntilOutcome(String taskID, int delay, int generationRetryMax){
-        int failCount = 0;
-
-        while(failCount <= generationRetryMax){
-            String status = checkGeneration(taskID);
-            while(status.contains("GENERATING")){
-                status = checkGeneration(taskID);
-                try{
-                    Thread.sleep(delay * 1000);
-                } catch (InterruptedException e){
-                    throw new RuntimeException("There was an error while paused.", e);
-                }
-            }
-            if(status.contains("https://")){
-                return status;
-            } else{
-                System.err.println(status);
-                failCount++;
-
-                if(failCount <= generationRetryMax){
-                    System.out.println("Retrying generation.");
-                }
-            }
-        }
-        throw new RuntimeException("Reached generation retry limit for task " + taskID);
-    }
-
-    public static String editImage(String imageURL, String prompt, int generationRetryMax){
-        String taskID = imageToImageTask(imageURL, prompt);
-        return tryUntilOutcome(taskID, 3, generationRetryMax);
     }
 
     public static int getRemainingCredits(){
