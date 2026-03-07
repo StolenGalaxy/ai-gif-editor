@@ -2,8 +2,8 @@ package com.stolengalaxy;
 
 import com.stolengalaxy.clients.NanoBananaApiClient;
 import com.stolengalaxy.clients.TmpFilesClient;
-import com.stolengalaxy.utils.FileHandling;
-import com.stolengalaxy.utils.GifHandling;
+import com.stolengalaxy.util.FileHandling;
+import com.stolengalaxy.util.GifHandling;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;

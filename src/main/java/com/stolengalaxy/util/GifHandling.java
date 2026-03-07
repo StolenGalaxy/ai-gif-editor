@@ -1,4 +1,4 @@
-package com.stolengalaxy.utils;
+package com.stolengalaxy.util;
 
 import com.sksamuel.scrimage.ImmutableImage;
 import com.sksamuel.scrimage.nio.AnimatedGif;

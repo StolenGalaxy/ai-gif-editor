@@ -1,4 +1,4 @@
-package com.stolengalaxy.utils;
+package com.stolengalaxy.util;
 import java.io.File;
 import java.io.IOException;
 
@@ -44,7 +44,7 @@ public class Requests {
                 }
 
                 try{
-                    Thread.sleep(5000);
+                    Thread.sleep(3000);
                 } catch (InterruptedException interruptedError){
                     throw new RuntimeException(interruptedError);
                 }
