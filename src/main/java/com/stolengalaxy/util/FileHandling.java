@@ -1,4 +1,4 @@
-package com.stolengalaxy.utils;
+package com.stolengalaxy.util;
 
 import org.apache.commons.io.FileUtils;
 

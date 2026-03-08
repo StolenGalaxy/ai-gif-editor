@@ -1,7 +1,7 @@
 package com.stolengalaxy.clients;
 
 import com.google.gson.JsonObject;
-import com.stolengalaxy.utils.Requests;
+import com.stolengalaxy.util.Requests;
 
 public class TmpFilesClient {
     private static final String endpoint = "https://tmpfiles.org/api/v1/upload";
