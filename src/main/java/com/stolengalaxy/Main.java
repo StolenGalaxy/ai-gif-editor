@@ -89,7 +89,7 @@ public class Main {
                 }
             }
 
-            TaskControllerService.generateAndDownload(editableFrames, prompt, 3, gifWidth, gifHeight);
+            TaskControllerService.generateAndDownload(editableFrames, prompt, 5, gifWidth, gifHeight);
             FileHandling.deleteFileByPath(gifPath);
             GifHandling.mergeIntoGif(framesData, gifPath);
             System.out.println("Completed " + gifPath);

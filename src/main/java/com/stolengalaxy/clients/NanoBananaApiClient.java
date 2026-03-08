@@ -5,6 +5,8 @@ import com.stolengalaxy.config.AppConfig;
 import com.stolengalaxy.util.Requests;
 import okhttp3.Request;
 
+import java.util.Scanner;
+
 
 public class NanoBananaApiClient {
     private static final String endpoint = "https://api.nanobananaapi.ai/api/v1/";
@@ -43,14 +45,29 @@ public class NanoBananaApiClient {
         request = authenticateRequest(request);
         JsonObject response = Requests.sendRequestWithRetries(request);
 
-        int successFlag = response.get("data").getAsJsonObject().get("successFlag").getAsInt();
+        if(!response.get("data").isJsonNull()){
+            int successFlag = response.get("data").getAsJsonObject().get("successFlag").getAsInt();
 
-        return switch(successFlag){
-            case 1 -> response.get("data").getAsJsonObject().get("response").getAsJsonObject().get("resultImageUrl").getAsString();
-            case 2 -> "Error: Task creation failed";
-            case 3 -> "Error: Image generation failed";
-            default -> "GENERATING";
-        };
+            return switch(successFlag){
+                case 1 -> response.get("data").getAsJsonObject().get("response").getAsJsonObject().get("resultImageUrl").getAsString();
+                case 2 -> "Error: Task creation failed";
+                case 3 -> "Error: Image generation failed";
+                default -> "GENERATING";
+            };
+        } else if (response.get("code").getAsInt() == 429){
+            System.err.println(response);
+            System.err.println("Polling appears to have been rate limited. Waiting 10 seconds.");
+            try{
+                Thread.sleep(10);
+            } catch (InterruptedException e){
+                throw new RuntimeException("There was an error while waiting.", e);
+            }
+
+            return "GENERATING";
+        } else{
+            System.err.println(response);
+            throw new RuntimeException("There was an error while polling generation.");
+        }
     }
 
     public static int getRemainingCredits(){
@@ -58,8 +75,6 @@ public class NanoBananaApiClient {
         request = authenticateRequest(request);
         JsonObject response = Requests.sendRequestWithRetries(request);
 
-        int remainingCredits = response.get("data").getAsInt();
-
-        return remainingCredits;
+        return response.get("data").getAsInt();
     }
 }
