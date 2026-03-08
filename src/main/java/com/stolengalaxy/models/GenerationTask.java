@@ -7,6 +7,7 @@ public class GenerationTask {
 
     public boolean failed;
     public boolean completed;
+    public boolean ignore;
     public int attempts;
 
     public String filePath;
@@ -20,6 +21,7 @@ public class GenerationTask {
 
         completed = false;
         failed = false;
+        ignore = false;
         attempts = 0;
     }
 

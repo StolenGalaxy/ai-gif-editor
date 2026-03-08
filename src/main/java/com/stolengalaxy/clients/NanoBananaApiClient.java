@@ -55,10 +55,9 @@ public class NanoBananaApiClient {
                 default -> "GENERATING";
             };
         } else if (response.get("code").getAsInt() == 429){
-            System.err.println(response);
-            System.err.println("Polling appears to have been rate limited. Waiting 10 seconds.");
+            System.err.println("Polling appears to have been rate limited. Pausing for 5 seconds.");
             try{
-                Thread.sleep(10);
+                Thread.sleep(5000);
             } catch (InterruptedException e){
                 throw new RuntimeException("There was an error while waiting.", e);
             }

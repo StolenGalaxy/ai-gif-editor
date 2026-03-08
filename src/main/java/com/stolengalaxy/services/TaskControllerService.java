@@ -22,11 +22,16 @@ public class TaskControllerService {
     public static boolean gatherGenerations(){
         boolean allTasksCompleted = true;
         for(GenerationTask task:currentTasks){
+            if(task.ignore){
+                continue;
+            }
             task.updateTask();
             if(task.completed && !task.failed){
                 FileHandling.downloadFile(task.finalURL, task.filePath);
                 completedTasks.add(task);
+
                 System.out.println("Completed task " + task.filePath);
+                task.ignore = true;
             } else if (!task.failed) {
                 allTasksCompleted = false;
             } else if(task.attempts < 2){
